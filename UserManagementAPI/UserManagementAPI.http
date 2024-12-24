@@ -1,15 +1,15 @@
 ### Get all users
-GET http://localhost:5000/users
+GET http://localhost:5112/users
 Accept: application/json
 X-API-KEY: your-faux-api-key
 
 ### Get a user by ID
-GET http://localhost:5000/users/1
+GET http://localhost:5112/users/1
 Accept: application/json
 X-API-KEY: your-faux-api-key
 
 ### Add a new user
-POST http://localhost:5000/users
+POST http://localhost:5112/users
 Content-Type: application/json
 X-API-KEY: your-faux-api-key
 
@@ -20,7 +20,7 @@ X-API-KEY: your-faux-api-key
 }
 
 ### Update an existing user
-PUT http://localhost:5000/users/1
+PUT http://localhost:5112/users/1
 Content-Type: application/json
 X-API-KEY: your-faux-api-key
 
@@ -31,6 +31,6 @@ X-API-KEY: your-faux-api-key
 }
 
 ### Delete a user by ID
-DELETE http://localhost:5000/users/1
+DELETE http://localhost:5112/users/1
 Accept: application/json
 X-API-KEY: your-faux-api-key
