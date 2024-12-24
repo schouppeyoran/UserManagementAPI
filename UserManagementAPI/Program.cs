@@ -1,7 +1,14 @@
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +32,28 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddLogging();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+
+// Configure JWT authentication
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
 
 var app = builder.Build();
 
@@ -36,17 +65,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 1. Global exception handling middleware
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// Middleware to log requests and responses
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
-// 2. Middleware to validate API key
+// Middleware to validate API key
 app.UseMiddleware<ApiKeyMiddleware>();
 
-// 3. Token authentication middleware
-app.UseMiddleware<TokenAuthenticationMiddleware>();
+// Global exception handling middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// 4. Middleware to log requests and responses
-app.UseMiddleware<RequestResponseLoggingMiddleware>();
+// Token authentication middleware
+app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 // User endpoints
 app.MapGet("/users", async (IUserService userService) => await userService.GetAllUsersAsync())
@@ -103,7 +132,19 @@ app.MapDelete("/users/{id}", async (IUserService userService, int id) =>
     return Results.NotFound(new { Message = "User not found" });
 }).WithName("DeleteUser");
 
+app.MapPost("/generate-token", (ITokenService tokenService, [FromBody] UserDto userDto) =>
+{
+    // Validate the user credentials (this is just a simple example, you should use a proper user validation mechanism)
+    if (userDto.Name == "test" && userDto.Email == "test@example.com")
+    {
+        var token = tokenService.GenerateToken(userDto.Name);
+        return Results.Ok(new { Token = token });
+    }
+    return Results.Unauthorized();
+}).WithName("GenerateToken");
+
 app.Run();
+
 
 public class UserDto
 {
@@ -162,5 +203,36 @@ public class UserService : IUserService
             return Task.FromResult(true);
         }
         return Task.FromResult(false);
+    }
+}
+
+public interface ITokenService
+{
+    string GenerateToken(string username);
+}
+
+public class TokenService : ITokenService
+{
+    private readonly IConfiguration _configuration;
+
+    public TokenService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public string GenerateToken(string username)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            Issuer = _configuration["Jwt:Issuer"],
+            Audience = _configuration["Jwt:Audience"],
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }

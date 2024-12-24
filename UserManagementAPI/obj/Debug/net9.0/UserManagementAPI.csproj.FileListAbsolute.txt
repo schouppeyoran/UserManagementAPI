@@ -32,3 +32,11 @@ c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagement
 c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\obj\Debug\net9.0\UserManagementAPI.pdb
 c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\obj\Debug\net9.0\UserManagementAPI.genruntimeconfig.cache
 c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\obj\Debug\net9.0\ref\UserManagementAPI.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+c:\Users\schou\Desktop\Web Development Projects\UserManagementAPI\UserManagementAPI\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll

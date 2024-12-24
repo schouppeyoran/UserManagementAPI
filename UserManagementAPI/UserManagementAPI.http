@@ -1,17 +1,52 @@
-### Get all users
+### Generate a token
+POST http://localhost:5112/generate-token
+Content-Type: application/json
+X-API-KEY: your-faux-api-key
+
+{
+  "name": "test",
+  "email": "test@example.com"
+}
+
+### Get all users with valid API key and token
+GET http://localhost:5112/users
+Accept: application/json
+X-API-KEY: your-faux-api-key
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6InRlc3QiLCJpYXQiOjE1MTYyMzkwMjJ9.rVHrBZJLtZk32hZ3Tdz80QNKK4TjRoQw0gO1DMijy9Q
+
+### Get all users with invalid API key
+GET http://localhost:5112/users
+Accept: application/json
+X-API-KEY: invalid-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
+
+### Get all users with missing API key
+GET http://localhost:5112/users
+Accept: application/json
+Authorization: Bearer {{your-valid-jwt-token}}
+
+### Get all users with invalid token
+GET http://localhost:5112/users
+Accept: application/json
+X-API-KEY: your-faux-api-key
+Authorization: Bearer invalid-jwt-token
+
+### Get all users with missing token
 GET http://localhost:5112/users
 Accept: application/json
 X-API-KEY: your-faux-api-key
 
-### Get a user by ID
+### Get a user by ID with valid API key and token
 GET http://localhost:5112/users/1
 Accept: application/json
 X-API-KEY: your-faux-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
 
-### Add a new user
+### Add a new user with valid API key and token
 POST http://localhost:5112/users
 Content-Type: application/json
 X-API-KEY: your-faux-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
 
 {
   "id": 3,
@@ -19,10 +54,35 @@ X-API-KEY: your-faux-api-key
   "email": "john.doe@example.com"
 }
 
-### Update an existing user
+### Add a new user with invalid API key
+POST http://localhost:5112/users
+Content-Type: application/json
+X-API-KEY: invalid-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
+
+{
+  "id": 3,
+  "name": "John Frank",
+  "email": "john.doe@example.com"
+}
+
+### Add a new user with invalid token
+POST http://localhost:5112/users
+Content-Type: application/json
+X-API-KEY: your-faux-api-key
+Authorization: Bearer invalid-jwt-token
+
+{
+  "id": 3,
+  "name": "John Frank",
+  "email": "john.doe@example.com"
+}
+
+### Update an existing user with valid API key and token
 PUT http://localhost:5112/users/1
 Content-Type: application/json
 X-API-KEY: your-faux-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
 
 {
   "id": 1,
@@ -30,7 +90,8 @@ X-API-KEY: your-faux-api-key
   "email": "john.smith@example.com"
 }
 
-### Delete a user by ID
+### Delete a user by ID with valid API key and token
 DELETE http://localhost:5112/users/1
 Accept: application/json
 X-API-KEY: your-faux-api-key
+Authorization: Bearer {{your-valid-jwt-token}}
