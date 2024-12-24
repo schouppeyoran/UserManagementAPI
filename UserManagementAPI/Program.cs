@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ bool IsValidEmail(string email)
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
@@ -41,12 +43,12 @@ app.UseMiddleware<ApiKeyMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // User endpoints
-app.MapGet("/users", (IUserService userService) => userService.GetAllUsers())
+app.MapGet("/users", async (IUserService userService) => await userService.GetAllUsersAsync())
    .WithName("GetAllUsers");
 
-app.MapGet("/users/{id}", (IUserService userService, int id) =>
+app.MapGet("/users/{id}", async (IUserService userService, int id) =>
 {
-    var user = userService.GetUserById(id);
+    var user = await userService.GetUserByIdAsync(id);
     if (user == null)
     {
         return Results.NotFound(new { Message = "User not found" });
@@ -54,7 +56,7 @@ app.MapGet("/users/{id}", (IUserService userService, int id) =>
     return Results.Ok(user);
 }).WithName("GetUserById");
 
-app.MapPost("/users", (IUserService userService, UserDto userDto) =>
+app.MapPost("/users", async (IUserService userService, UserDto userDto) =>
 {
     if (string.IsNullOrWhiteSpace(userDto.Name))
     {
@@ -67,18 +69,28 @@ app.MapPost("/users", (IUserService userService, UserDto userDto) =>
     }
 
     var user = new User { Id = userDto.Id, Name = userDto.Name, Email = userDto.Email };
-    return Results.Ok(userService.AddUser(user));
+    return Results.Ok(await userService.AddUserAsync(user));
 }).WithName("AddUser");
 
-app.MapPut("/users/{id}", (IUserService userService, int id, UserDto updatedUserDto) =>
+app.MapPut("/users/{id}", async (IUserService userService, int id, UserDto updatedUserDto) =>
 {
+    if (string.IsNullOrWhiteSpace(updatedUserDto.Name))
+    {
+        return Results.BadRequest(new { Message = "User name cannot be empty." });
+    }
+
+    if (!IsValidEmail(updatedUserDto.Email))
+    {
+        return Results.BadRequest(new { Message = "Invalid email address." });
+    }
+
     var updatedUser = new User { Id = updatedUserDto.Id, Name = updatedUserDto.Name, Email = updatedUserDto.Email };
-    return Results.Ok(userService.UpdateUser(id, updatedUser));
+    return Results.Ok(await userService.UpdateUserAsync(id, updatedUser));
 }).WithName("UpdateUser");
 
-app.MapDelete("/users/{id}", (IUserService userService, int id) =>
+app.MapDelete("/users/{id}", async (IUserService userService, int id) =>
 {
-    if (userService.DeleteUser(id))
+    if (await userService.DeleteUserAsync(id))
     {
         return Results.Ok(new { Message = "User deleted successfully" });
     }
@@ -162,28 +174,28 @@ public class User
 
 public interface IUserService
 {
-    IEnumerable<User> GetAllUsers();
-    User GetUserById(int id);
-    User AddUser(User user);
-    User UpdateUser(int id, User updatedUser);
-    bool DeleteUser(int id);
+    Task<IEnumerable<User>> GetAllUsersAsync();
+    Task<User> GetUserByIdAsync(int id);
+    Task<User> AddUserAsync(User user);
+    Task<User> UpdateUserAsync(int id, User updatedUser);
+    Task<bool> DeleteUserAsync(int id);
 }
 
 public class UserService : IUserService
 {
     private readonly List<User> _users = new List<User>();
 
-    public IEnumerable<User> GetAllUsers() => _users;
+    public Task<IEnumerable<User>> GetAllUsersAsync() => Task.FromResult<IEnumerable<User>>(_users);
 
-    public User GetUserById(int id) => _users.FirstOrDefault(u => u.Id == id);
+    public Task<User> GetUserByIdAsync(int id) => Task.FromResult(_users.FirstOrDefault(u => u.Id == id));
 
-    public User AddUser(User user)
+    public Task<User> AddUserAsync(User user)
     {
         _users.Add(user);
-        return user;
+        return Task.FromResult(user);
     }
 
-    public User UpdateUser(int id, User updatedUser)
+    public Task<User> UpdateUserAsync(int id, User updatedUser)
     {
         var user = _users.FirstOrDefault(u => u.Id == id);
         if (user != null)
@@ -191,17 +203,17 @@ public class UserService : IUserService
             user.Name = updatedUser.Name;
             user.Email = updatedUser.Email;
         }
-        return user;
+        return Task.FromResult(user);
     }
 
-    public bool DeleteUser(int id)
+    public Task<bool> DeleteUserAsync(int id)
     {
         var user = _users.FirstOrDefault(u => u.Id == id);
         if (user != null)
         {
             _users.Remove(user);
-            return true;
+            return Task.FromResult(true);
         }
-        return false;
+        return Task.FromResult(false);
     }
 }
