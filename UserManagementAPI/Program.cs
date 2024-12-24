@@ -18,6 +18,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Middleware to validate API key
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Headers.TryGetValue("X-API-KEY", out var extractedApiKey))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("API Key was not provided.");
+        return;
+    }
+
+    var apiKey = builder.Configuration["ApiKey"];
+
+    if (!apiKey.Equals(extractedApiKey))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Unauthorized client.");
+        return;
+    }
+
+    await next();
+});
+
 // User endpoints
 app.MapGet("/users", (IUserService userService) => userService.GetAllUsers())
    .WithName("GetAllUsers");

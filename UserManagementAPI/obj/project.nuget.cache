@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8a5Gio5Jr10=",
+  "dgSpecHash": "UWYurt/k7No=",
   "success": true,
-  "projectFilePath": "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
+  "projectFilePath": "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\schou\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.0\\microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
     "C:\\Users\\schou\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
