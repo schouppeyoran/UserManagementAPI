@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj": {}
+    "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj": {
+    "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
+        "projectUniqueName": "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
         "projectName": "UserManagementAPI",
-        "projectPath": "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
+        "projectPath": "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\UserManagementAPI.csproj",
         "packagesPath": "C:\\Users\\schou\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\obj\\",
+        "outputPath": "c:\\Users\\schou\\Desktop\\Web Development Projects\\UserManagementAPI\\UserManagementAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
