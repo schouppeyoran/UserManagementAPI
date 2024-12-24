@@ -36,14 +36,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Middleware to log requests and responses
-app.UseMiddleware<RequestResponseLoggingMiddleware>();
+// 1. Global exception handling middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Middleware to validate API key
+// 2. Middleware to validate API key
 app.UseMiddleware<ApiKeyMiddleware>();
 
-// Global exception handling middleware
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// 3. Token authentication middleware
+app.UseMiddleware<TokenAuthenticationMiddleware>();
+
+// 4. Middleware to log requests and responses
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 // User endpoints
 app.MapGet("/users", async (IUserService userService) => await userService.GetAllUsersAsync())

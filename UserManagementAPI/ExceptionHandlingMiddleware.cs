@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 public class ExceptionHandlingMiddleware
 {
@@ -19,8 +25,23 @@ public class ExceptionHandlingMiddleware
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unhandled exception occurred.");
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("An unexpected error occurred. Please try again later.");
+            await HandleExceptionAsync(context, ex);
         }
+    }
+
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+        var response = new
+        {
+            StatusCode = context.Response.StatusCode,
+            Message = "An unexpected error occurred. Please try again later.",
+            Detailed = exception.Message // Optional: Include detailed error message for debugging
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(response);
+        return context.Response.WriteAsync(jsonResponse);
     }
 }
