@@ -14,8 +14,8 @@ Content-Type: application/json
 X-API-KEY: your-faux-api-key
 
 {
-  "id": 1,
-  "name": "John Doe",
+  "id": 3,
+  "name": "John Frank",
   "email": "john.doe@example.com"
 }
 

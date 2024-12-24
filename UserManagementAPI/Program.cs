@@ -36,6 +36,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Middleware to log requests and responses
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
 // Middleware to validate API key
 app.UseMiddleware<ApiKeyMiddleware>();
 
@@ -98,65 +101,6 @@ app.MapDelete("/users/{id}", async (IUserService userService, int id) =>
 }).WithName("DeleteUser");
 
 app.Run();
-
-public class ApiKeyMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly IConfiguration _configuration;
-
-    public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
-    {
-        _next = next;
-        _configuration = configuration;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        if (!context.Request.Headers.TryGetValue("X-API-KEY", out var extractedApiKey))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("API Key was not provided.");
-            return;
-        }
-
-        var apiKey = _configuration["ApiKey"];
-
-        if (!apiKey.Equals(extractedApiKey))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Unauthorized client.");
-            return;
-        }
-
-        await _next(context);
-    }
-}
-
-public class ExceptionHandlingMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
-        {
-            await _next(context);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An unhandled exception occurred.");
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("An unexpected error occurred. Please try again later.");
-        }
-    }
-}
 
 public class UserDto
 {
