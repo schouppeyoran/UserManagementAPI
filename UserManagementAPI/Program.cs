@@ -5,6 +5,20 @@ using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// General use method to validate email address
+bool IsValidEmail(string email)
+{
+    try
+    {
+        var addr = new System.Net.Mail.MailAddress(email);
+        return addr.Address == email;
+    }
+    catch
+    {
+        return false;
+    }
+}
+
 // Add services to the container.
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IUserService, UserService>();
@@ -42,6 +56,16 @@ app.MapGet("/users/{id}", (IUserService userService, int id) =>
 
 app.MapPost("/users", (IUserService userService, UserDto userDto) =>
 {
+    if (string.IsNullOrWhiteSpace(userDto.Name))
+    {
+        return Results.BadRequest(new { Message = "User name cannot be empty." });
+    }
+
+    if (!IsValidEmail(userDto.Email))
+    {
+        return Results.BadRequest(new { Message = "Invalid email address." });
+    }
+
     var user = new User { Id = userDto.Id, Name = userDto.Name, Email = userDto.Email };
     return Results.Ok(userService.AddUser(user));
 }).WithName("AddUser");
