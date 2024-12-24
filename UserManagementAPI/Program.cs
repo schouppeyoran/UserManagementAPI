@@ -44,8 +44,15 @@ app.Use(async (context, next) =>
 app.MapGet("/users", (IUserService userService) => userService.GetAllUsers())
    .WithName("GetAllUsers");
 
-app.MapGet("/users/{id}", (IUserService userService, int id) => userService.GetUserById(id))
-   .WithName("GetUserById");
+app.MapGet("/users/{id}", (IUserService userService, int id) =>
+{
+    var user = userService.GetUserById(id);
+    if (user == null)
+    {
+        return Results.NotFound(new { Message = "User not found" });
+    }
+    return Results.Ok(user);
+}).WithName("GetUserById");
 
 app.MapPost("/users", (IUserService userService, User user) => userService.AddUser(user))
    .WithName("AddUser");
