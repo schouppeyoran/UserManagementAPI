@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton<IUserService, UserService>();
 
 var app = builder.Build();
 
@@ -14,28 +18,73 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// User endpoints
+app.MapGet("/users", (IUserService userService) => userService.GetAllUsers())
+   .WithName("GetAllUsers");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapGet("/users/{id}", (IUserService userService, int id) => userService.GetUserById(id))
+   .WithName("GetUserById");
+
+app.MapPost("/users", (IUserService userService, User user) => userService.AddUser(user))
+   .WithName("AddUser");
+
+app.MapPut("/users/{id}", (IUserService userService, int id, User updatedUser) => userService.UpdateUser(id, updatedUser))
+   .WithName("UpdateUser");
+
+app.MapDelete("/users/{id}", (IUserService userService, int id) => userService.DeleteUser(id))
+   .WithName("DeleteUser");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+class User
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
+interface IUserService
+{
+    IEnumerable<User> GetAllUsers();
+    User GetUserById(int id);
+    User AddUser(User user);
+    User UpdateUser(int id, User updatedUser);
+    bool DeleteUser(int id);
+}
+
+class UserService : IUserService
+{
+    private readonly List<User> _users = new List<User>();
+
+    public IEnumerable<User> GetAllUsers() => _users;
+
+    public User GetUserById(int id) => _users.FirstOrDefault(u => u.Id == id);
+
+    public User AddUser(User user)
+    {
+        _users.Add(user);
+        return user;
+    }
+
+    public User UpdateUser(int id, User updatedUser)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == id);
+        if (user != null)
+        {
+            user.Name = updatedUser.Name;
+            user.Email = updatedUser.Email;
+        }
+        return user;
+    }
+
+    public bool DeleteUser(int id)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == id);
+        if (user != null)
+        {
+            _users.Remove(user);
+            return true;
+        }
+        return false;
+    }
 }
